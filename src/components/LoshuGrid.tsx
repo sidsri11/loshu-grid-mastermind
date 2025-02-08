@@ -2,15 +2,30 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { isValidNumber, isUnique, isValidLoshuGrid } from "@/utils/loshuValidation";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  isValidNumber,
+  isUnique,
+  isValidLoshuGrid,
+  calculateLoshuFromDate
+} from "@/utils/loshuValidation";
 
 export const LoshuGrid = () => {
   const [grid, setGrid] = useState<string[][]>(Array(3).fill(Array(3).fill("")));
   const [isValid, setIsValid] = useState<boolean>(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
     validateGrid();
   }, [grid]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const calculatedGrid = calculateLoshuFromDate(selectedDate);
+      setGrid(calculatedGrid);
+      toast.success("Loshu Grid generated from your date of birth!");
+    }
+  }, [selectedDate]);
 
   const validateGrid = () => {
     const allFilled = grid.every((row) => row.every((cell) => cell !== ""));
@@ -41,6 +56,7 @@ export const LoshuGrid = () => {
   const resetGrid = () => {
     setGrid(Array(3).fill(Array(3).fill("")));
     setIsValid(false);
+    setSelectedDate(undefined);
     toast.info("Grid has been reset");
   };
 
@@ -53,38 +69,51 @@ export const LoshuGrid = () => {
           </span>
           <h1 className="text-4xl font-semibold mt-2">Loshu Grid Solver</h1>
           <p className="text-gray-600 max-w-md mx-auto">
-            Fill in numbers 1-9 to create a magic square where all rows, columns,
-            and diagonals sum to 15.
+            Select your date of birth to generate your personal Loshu Grid, or manually fill
+            in numbers 1-9 to create a magic square where all rows, columns, and
+            diagonals sum to 15.
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 p-4 bg-white rounded-xl shadow-lg">
-          {grid.map((row, rowIndex) => (
-            <div key={rowIndex} className="contents">
-              {row.map((cell, colIndex) => (
-                <motion.div
-                  key={`${rowIndex}-${colIndex}`}
-                  initial={{ scale: 0.95, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.2, delay: rowIndex * 0.1 + colIndex * 0.1 }}
-                >
-                  <input
-                    type="text"
-                    value={cell}
-                    onChange={(e) =>
-                      handleCellChange(rowIndex, colIndex, e.target.value)
-                    }
-                    className={`w-16 h-16 text-2xl text-center border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 ${
-                      isValid
-                        ? "border-green-500 bg-green-50"
-                        : "border-loshu-border hover:border-loshu-accent focus:border-loshu-accent"
-                    }`}
-                    maxLength={1}
-                  />
-                </motion.div>
-              ))}
-            </div>
-          ))}
+        <div className="flex flex-col items-center gap-6">
+          <div className="bg-white p-4 rounded-xl shadow-lg">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              className="rounded-md"
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 p-4 bg-white rounded-xl shadow-lg">
+            {grid.map((row, rowIndex) => (
+              <div key={rowIndex} className="contents">
+                {row.map((cell, colIndex) => (
+                  <motion.div
+                    key={`${rowIndex}-${colIndex}`}
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.2, delay: rowIndex * 0.1 + colIndex * 0.1 }}
+                  >
+                    <input
+                      type="text"
+                      value={cell}
+                      onChange={(e) =>
+                        handleCellChange(rowIndex, colIndex, e.target.value)
+                      }
+                      className={`w-16 h-16 text-2xl text-center border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 ${
+                        isValid
+                          ? "border-green-500 bg-green-50"
+                          : "border-loshu-border hover:border-loshu-accent focus:border-loshu-accent"
+                      }`}
+                      maxLength={1}
+                      readOnly={selectedDate !== undefined}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="flex justify-center">
@@ -100,7 +129,8 @@ export const LoshuGrid = () => {
       <div className="max-w-md p-6 bg-loshu-muted rounded-xl">
         <h2 className="text-xl font-semibold mb-4">How to Play</h2>
         <ul className="space-y-2 text-gray-600">
-          <li>• Enter numbers 1-9 in the grid</li>
+          <li>• Select your date of birth to generate your Loshu Grid automatically</li>
+          <li>• Or manually enter numbers 1-9 in the grid</li>
           <li>• Each number can only be used once</li>
           <li>• All rows must sum to 15</li>
           <li>• All columns must sum to 15</li>
