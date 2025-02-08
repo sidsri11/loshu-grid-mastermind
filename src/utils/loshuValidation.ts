@@ -37,6 +37,27 @@ export const isValidLoshuGrid = (grid: string[][]): boolean => {
   return isValidRow(diagonal1) && isValidRow(diagonal2);
 };
 
+export const getNumbersFromDate = (date: Date): number[] => {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear().toString();
+  
+  // Get individual digits
+  const digits = (day + month + year).split('').map(Number);
+  
+  // Calculate driver number (sum of day digits)
+  const driverNumber = (parseInt(day[0]) + parseInt(day[1])).toString()
+    .split('').map(Number)
+    .reduce((a, b) => a + b);
+  
+  // Calculate conductor number (sum of all digits)
+  const conductorNumber = digits.reduce((a, b) => a + b, 0).toString()
+    .split('').map(Number)
+    .reduce((a, b) => a + b);
+  
+  return [...digits, driverNumber, conductorNumber];
+};
+
 export const calculateLoshuFromDate = (date: Date): string[][] => {
   // Convert date to string and sum all digits
   const dateString = date.getDate().toString().padStart(2, '0') +

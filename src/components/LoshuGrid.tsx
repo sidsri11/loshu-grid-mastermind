@@ -4,11 +4,13 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { X } from "lucide-react";
 import {
   isValidNumber,
   isUnique,
   isValidLoshuGrid,
-  calculateLoshuFromDate
+  calculateLoshuFromDate,
+  getNumbersFromDate
 } from "@/utils/loshuValidation";
 
 export const LoshuGrid = () => {
@@ -17,6 +19,7 @@ export const LoshuGrid = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
+  const [dateNumbers, setDateNumbers] = useState<number[]>([]);
 
   const years = Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i);
   const months = [
@@ -32,6 +35,7 @@ export const LoshuGrid = () => {
     if (selectedDate) {
       const calculatedGrid = calculateLoshuFromDate(selectedDate);
       setGrid(calculatedGrid);
+      setDateNumbers(getNumbersFromDate(selectedDate));
       toast.success("Loshu Grid generated from your date of birth!");
     }
   }, [selectedDate]);
@@ -68,7 +72,14 @@ export const LoshuGrid = () => {
     setSelectedDate(undefined);
     setSelectedYear(new Date().getFullYear());
     setSelectedMonth(new Date().getMonth());
+    setDateNumbers([]);
     toast.info("Grid has been reset");
+  };
+
+  const shouldShowCross = (value: string) => {
+    if (!selectedDate || !value) return false;
+    const num = parseInt(value);
+    return !dateNumbers.includes(num);
   };
 
   return (
@@ -141,6 +152,7 @@ export const LoshuGrid = () => {
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 0.2, delay: rowIndex * 0.1 + colIndex * 0.1 }}
+                    className="relative"
                   >
                     <input
                       type="text"
@@ -156,6 +168,12 @@ export const LoshuGrid = () => {
                       maxLength={1}
                       readOnly={selectedDate !== undefined}
                     />
+                    {shouldShowCross(cell) && (
+                      <X 
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-red-500 opacity-50" 
+                        size={32}
+                      />
+                    )}
                   </motion.div>
                 ))}
               </div>
