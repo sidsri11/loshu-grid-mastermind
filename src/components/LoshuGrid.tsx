@@ -172,18 +172,6 @@ export const LoshuGrid = () => {
           </button>
         </div>
       </div>
-
-      <div className="max-w-md p-6 bg-loshu-muted rounded-xl">
-        <h2 className="text-xl font-semibold mb-4">How to Play</h2>
-        <ul className="space-y-2 text-gray-600">
-          <li>• Select your date of birth to generate your Loshu Grid automatically</li>
-          <li>• Or manually enter numbers 1-9 in the grid</li>
-          <li>• Each number can only be used once</li>
-          <li>• All rows must sum to 15</li>
-          <li>• All columns must sum to 15</li>
-          <li>• Both diagonals must sum to 15</li>
-        </ul>
-      </div>
     </div>
   );
 };
