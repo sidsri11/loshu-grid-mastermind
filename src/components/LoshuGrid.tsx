@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   isValidNumber,
   isUnique,
@@ -14,6 +15,14 @@ export const LoshuGrid = () => {
   const [grid, setGrid] = useState<string[][]>(Array(3).fill(Array(3).fill("")));
   const [isValid, setIsValid] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
+
+  const years = Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i);
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
   useEffect(() => {
     validateGrid();
@@ -57,6 +66,8 @@ export const LoshuGrid = () => {
     setGrid(Array(3).fill(Array(3).fill("")));
     setIsValid(false);
     setSelectedDate(undefined);
+    setSelectedYear(new Date().getFullYear());
+    setSelectedMonth(new Date().getMonth());
     toast.info("Grid has been reset");
   };
 
@@ -76,11 +87,47 @@ export const LoshuGrid = () => {
         </div>
 
         <div className="flex flex-col items-center gap-6">
-          <div className="bg-white p-4 rounded-xl shadow-lg">
+          <div className="bg-white p-4 rounded-xl shadow-lg space-y-4">
+            <div className="flex gap-4 mb-4">
+              <Select
+                value={selectedMonth.toString()}
+                onValueChange={(value) => setSelectedMonth(parseInt(value))}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select month" />
+                </SelectTrigger>
+                <SelectContent>
+                  {months.map((month, index) => (
+                    <SelectItem key={index} value={index.toString()}>
+                      {month}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={selectedYear.toString()}
+                onValueChange={(value) => setSelectedYear(parseInt(value))}
+              >
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue placeholder="Select year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
+              month={new Date(selectedYear, selectedMonth)}
+              defaultMonth={new Date(selectedYear, selectedMonth)}
               className="rounded-md"
             />
           </div>
